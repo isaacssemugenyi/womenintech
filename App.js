@@ -1,21 +1,19 @@
+import 'react-native-gesture-handler';
+import React, { useState, useMemo } from 'react';
+import AppStack from './src/routes/MainStack';
 import { StatusBar } from 'expo-status-bar';
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { UserLoginContext } from './src/context/UserLoginContext';
 
 export default function App() {
+  const [ currentUser, setCurrentUser ] = useState({});
+
+  const loggedInUser = useMemo(() => ({ currentUser, setCurrentUser }), [currentUser, setCurrentUser]);
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    // Context to parse loggedin user
+    <UserLoginContext.Provider value={loggedInUser}>
+        <AppStack />
+        <StatusBar style="light" />
+    </UserLoginContext.Provider> 
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
