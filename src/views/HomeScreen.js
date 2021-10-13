@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useContext } from 'react';
 import { View, Text, Image } from 'react-native';
 import Button from '../components/Button';
 import styles from '../styles/login';
+import { UserLoginContext } from '../context/UserLoginContext';
 
 export default function HomeScreen({ navigation}) {
+    const { currentUser } = useContext(UserLoginContext);
     return (
         <View style={{ ...styles.container, paddingHorizontal: 10, paddingBottom: 10 }}>
             <View style={{flex: 2, paddingTop: '3%'}}>
@@ -38,7 +40,11 @@ export default function HomeScreen({ navigation}) {
                 <Button 
                     textStyle={{fontSize: 24, paddingHorizontal: 5}}
                     btnStyle={{backgroundColor: '#F633E3F7'}}
-                    onPress={()=> navigation.navigate("AuthScreen")}
+                    onPress={()=> {
+                       currentUser != null && currentUser.hasOwnProperty('token') ? 
+                       navigation.navigate("SavingList") :
+                       navigation.navigate("AuthScreen")
+                    }}
                     label="Health Savings"
                 />
             </View>

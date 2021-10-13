@@ -1,15 +1,19 @@
-import React, { useState } from 'react';
-import { View, Text, ActivityIndicator, Alert } from 'react-native';
+import React, { useEffect, useState, useContext } from 'react';
+import { View, Text, ActivityIndicator } from 'react-native';
 import { useFormik } from 'formik';
 import { LoginSchema } from '../services/validation';
-import { API } from '../services/handler';
+import { BASE_URL } from '../services/URLConfig';
+import Axios from 'axios';
 import TextInput from '../components/TextInput';
 import Button from '../components/Button';
 import styles from '../styles/login';
+import { UserLoginContext } from '../context/UserLoginContext';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 
 export default function Login({ navigation}) {
+    const { currentUser, setCurrentUser } = useContext(UserLoginContext);
     const [ indicator, setIndicator ] = useState(false);
+    const [ message, setMessage ] = useState('');
     const { handleChange, handleSubmit, handleBlur, values, errors, touched } = useFormik({
         validationSchema: LoginSchema,
         initialValues: { email: '', password: '' },
@@ -18,21 +22,44 @@ export default function Login({ navigation}) {
         }
     });
 
+    useEffect(()=>{
+        setCurrentUser(null);
+    }, []);
+
     const LOGIN_USER = async (data) =>{
-        Alert.alert('Still under development, Please try later')
-        // try {
-        //     setIndicator(true);
-        //     const NEW_USER = await API.post('user/login', data);
-        //     if(NEW_USER.status === 201) {
-        //         setIndicator(false);
-        //         setTimeout(()=>{
-        //             navigation.navigate('Login');
-        //         }, 500);
-        //     }
-        // } catch(err){
-        //     setIndicator(false);
-        //     console.log('signup err', err);
-        // } 
+        try {
+            setIndicator(true);
+            const response = await Axios.post(`${BASE_URL}/users/login`, data);
+            if(response.status == 200) {
+                if(response.data.status == 1){
+                    setMessage("Login was successfull");
+                    setCurrentUser(response.data)
+                    setTimeout(()=>{
+                        setIndicator(false);
+                        setMessage("");
+                        navigation.replace('SavingList');
+                    }, 500);
+                } else {
+                    setMessage(response.data.message);
+                    setTimeout(()=>{
+                        setIndicator(false);
+                        setMessage("");
+                    }, 1000);
+                }
+            } else {
+                setMessage("An Unknown error occured");
+                setTimeout(()=>{
+                    setMessage('');
+                    setIndicator(false);
+                }, 2000);
+            }
+        } catch(err){
+            setMessage(err.message);
+            setTimeout(()=>{
+                setMessage('');
+                setIndicator(false);
+            }, 2000);
+        } 
     }
 
     return (
@@ -44,6 +71,7 @@ export default function Login({ navigation}) {
                 borderTopLeftRadius: 24, 
                 borderTopRightRadius: 24
                 }}>
+                    {message != '' ? <Text style={{color: 'green'}}>{message}</Text> : null}
                     <KeyboardAwareScrollView>               
                 <View style={{marginBottom: 7}}>
                     <TextInput 

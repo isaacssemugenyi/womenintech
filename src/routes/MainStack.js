@@ -3,6 +3,8 @@ import { createStackNavigator } from 'react-navigation-stack';
 import AuthScreen from '../views/AuthScreen';
 import Login from '../views/Login';
 import Signup from '../views/Signup';
+import SavingList from '../views/SavingList';
+import TransferScreen from '../views/TransferScreen';
 import HomeScreen from '../views/HomeScreen';
 import CareSection from '../views/CareSection';
 import CareDetails from '../views/CareDetails';
@@ -20,6 +22,18 @@ const AuthStack =  createStackNavigator({
     },
     Signup: { 
         screen: Signup
+    },
+    SavingList: {
+        screen: SavingList,
+        navigationOptions:  () =>  ({
+            title: 'My Savings'
+        })
+    },
+    TransferScreen: {
+        screen: TransferScreen,
+        navigationOptions:  () =>  ({
+            title: 'Transfer'
+        })
     }
 },{
     defaultNavigationOptions: {

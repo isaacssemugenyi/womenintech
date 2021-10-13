@@ -69,4 +69,4 @@ AuthScreen.navigationOptions = ({ navigation }) => {
         </View>
       )
     }
-  }
+}

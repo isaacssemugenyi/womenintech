@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { View, Text, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, ActivityIndicator } from 'react-native';
 import { useFormik } from 'formik';
 import { SignupSchema } from '../services/validation';
-import { API } from '../services/handler';
+import { BASE_URL } from '../services/URLConfig';
+import Axios from 'axios';
 import TextInput from '../components/TextInput';
 import Button from '../components/Button';
 import styles from '../styles/login';
@@ -10,6 +11,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 
 export default function Signup({ navigation}) {
     const [ indicator, setIndicator ] = useState(false);
+    const [ message, setMessage ] = useState('');
     const { handleChange, handleSubmit, handleBlur, values, errors, touched } = useFormik({
         validationSchema: SignupSchema,
         initialValues: { fullname: '', email: '', password: '', mobile: 0 },
@@ -19,20 +21,29 @@ export default function Signup({ navigation}) {
     });
 
     const SIGNUP_NEW_USER = async (data) =>{
-        Alert.alert("Still under development, Try again some time")
-        // try {
-        //     setIndicator(true);
-        //     const NEW_USER = await API.post('/users', data);
-        //     if(NEW_USER.status === 201) {
-        //         setIndicator(false);
-        //         setTimeout(()=>{
-        //             navigation.navigate('Login');
-        //         }, 500);
-        //     }
-        // } catch(err){
-        //     setIndicator(false);
-        //     console.log('signup err', err);
-        // } 
+        try {
+            setIndicator(true);
+            const NEW_USER = await Axios.post(`${BASE_URL}/users`, data);
+            if(NEW_USER.status === 201) {
+                setMessage('Account created successfully');
+                setTimeout(()=>{
+                    setMessage('');
+                    setIndicator(false);
+                }, 2000);
+            } else {
+                setMessage(NEW_USER.data.message);
+                setTimeout(()=>{
+                    setMessage('');
+                    setIndicator(false);
+                }, 2000);
+            }
+        } catch(err){
+            setMessage(err.message);
+            setTimeout(()=>{
+                setMessage('');
+                setIndicator(false);
+            }, 2000);
+        } 
     }
 
     return (
@@ -44,6 +55,7 @@ export default function Signup({ navigation}) {
                 borderTopLeftRadius: 24, 
                 borderTopRightRadius: 24
                 }}>
+                    {message != '' ? <Text style={{color: 'green'}}>{message}</Text> : null}
                     <KeyboardAwareScrollView>
                 <View style={{marginBottom: 7, marginTop: '10%'}}>
                     <TextInput 
@@ -89,7 +101,6 @@ export default function Signup({ navigation}) {
                         placeholder="Phone Number"
                         onChangeText={handleChange('mobile')}
                         autoCompleteType='tel'
-                        secureTextEntry={true}
                         keyboardAppearance='dark'
                         returnKeyType='next'
                         returnKeyLabel='next'
